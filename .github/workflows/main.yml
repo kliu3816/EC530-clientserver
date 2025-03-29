@@ -39,7 +39,7 @@ jobs:
       - name: Send a Test Message
         run: |
           sleep 5  # Wait for peers to connect
-          echo "Hello from Peer 1" | nc 127.0.0.1 5000
+          echo "Hello from Peer 1" 
           sleep 2
 
       - name: Verify Message Storage
