@@ -1,0 +1,58 @@
+name: Test Chat System
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set Up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest
+
+      - name: Start Peer 1
+        run: |
+          python peer_chat.py peer1 127.0.0.1 5000 &
+        timeout-minutes: 1
+
+      - name: Start Peer 2 and Connect to Peer 1
+        run: |
+          python peer_chat.py peer2 127.0.0.1 5001 127.0.0.1 5000 &
+        timeout-minutes: 1
+
+      - name: Send a Test Message
+        run: |
+          sleep 5  # Wait for peers to connect
+          echo "Hello from Peer 1" | nc 127.0.0.1 5000
+          sleep 2
+
+      - name: Verify Message Storage
+        run: |
+          python -c "
+          import sqlite3;
+          conn = sqlite3.connect('chat.db');
+          cursor = conn.cursor();
+          cursor.execute(\"SELECT message FROM messages WHERE message='Hello from Peer 1'\");
+          assert cursor.fetchone() is not None, 'Test message was not stored in chat.db';
+          conn.close();
+          "
+
+      - name: Cleanup Processes
+        run: |
+          pkill -f peer_chat.py || true
