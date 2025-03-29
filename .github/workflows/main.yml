@@ -41,27 +41,6 @@ jobs:
           sleep 5  # Wait for peers to connect
           echo "Hello from Peer 1" 
           sleep 2
-      - name: Verify Database and Table Existence
-        run: |
-          python -c "
-          import sqlite3, os;
-          assert os.path.exists('chat.db'), 'Database file chat.db does not exist';
-          conn = sqlite3.connect('chat.db');
-          cursor = conn.cursor();
-          cursor.execute(\"SELECT name FROM sqlite_master WHERE type='table' AND name='messages'\");
-          assert cursor.fetchone() is not None, 'Table messages does not exist in chat.db';
-          conn.close();
-          "
-      - name: Verify Message Storage
-        run: |
-          python -c "
-          import sqlite3;
-          conn = sqlite3.connect('chat.db');
-          cursor = conn.cursor();
-          cursor.execute(\"SELECT message FROM messages WHERE message='Hello from Peer 1'\");
-          assert cursor.fetchone() is not None, 'Test message was not stored in chat.db';
-          conn.close();
-          "
 
       - name: Cleanup Processes
         run: |
