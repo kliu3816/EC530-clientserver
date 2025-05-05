@@ -1,0 +1,27 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: .
+    container_name: server
+    command: ["python", "server.py"]
+    ports:
+      - "65432:65432"
+    networks:
+      - ec530_net
+
+  client:
+    build:
+      context: .
+    container_name: client
+    command: ["python", "client.py"]
+    depends_on:
+      - server
+    networks:
+      - ec530_net
+
+networks:
+  ec530_net:
+    driver: bridge
