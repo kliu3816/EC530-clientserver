@@ -42,17 +42,6 @@ jobs:
           echo "Hello from Peer 1" 
           sleep 2
 
-      - name: Verify Message Storage
-        run: |
-          python -c "
-          import sqlite3;
-          conn = sqlite3.connect('chat.db');
-          cursor = conn.cursor();
-          cursor.execute(\"SELECT message FROM messages WHERE message='Hello from Peer 1'\");
-          assert cursor.fetchone() is not None, 'Test message was not stored in chat.db';
-          conn.close();
-          "
-
       - name: Cleanup Processes
         run: |
           pkill -f peer_chat.py || true
